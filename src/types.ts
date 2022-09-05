@@ -1,27 +1,43 @@
-export type ItemDefinition = {
-    displayProperties: { name: string; description: string; icon: string };
-    hash: number;
-    itemTypeDisplayName: string;
-    itemTypeAndTierDisplayName: string;
-    inventory: {
-        tierTypeName: string;
-        bucketTypeHash: number;
-    };
+export type Builds = {
+    id: string;
+    link: string;
+    created_at: string;
+    class: string;
+    subclass: string;
+};
+
+export type EquipmentItem = {
+    name: string;
+    icon: string;
+    type: string;
+    rarity: string;
+    slot: string;
+};
+
+export type ModItem = {
+    name: string;
+    icon: string;
+    type: string;
+};
+
+export type ClassSocketItem = {
+    name: string;
+    icon: string;
+    type: string;
 };
 
 export enum ClassTypes {
     Titan = 0,
     Hunter = 1,
-    Warlock = 2
+    Warlock = 2,
 }
 
 export type InventoryBucketDefinitions = {
     displayProperties: { name: string; description: string; icon: string };
     hash: number;
-}
+};
 
 export interface SocketOverrides {
-    0: { id: string; hash: number };
     1: { id: string; hash: number };
     2: { id: string; hash: number };
     3: { id: string; hash: number };
@@ -54,13 +70,4 @@ export interface Loadout {
     equipped: Equipped[];
     createdAt: Date;
     parameters: Parameters;
-}
-
-
-export type Builds = {
-    id: string;
-    link: string;
-    created_at: string;
-    class: string;
-    subclass: string;
 }

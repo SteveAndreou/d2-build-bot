@@ -1,3 +1,10 @@
-node_modules
-build
+# files
+.vscode
 .env
+.env.local
+package-lock.json
+yarn.lock
+
+# folders
+build
+node_modules
