@@ -38,16 +38,7 @@ export type InventoryBucketDefinitions = {
 };
 
 export interface SocketOverrides {
-    1: { id: string; hash: number };
-    2: { id: string; hash: number };
-    3: { id: string; hash: number };
-    4: { id: string; hash: number };
-    5: { id: string; hash: number };
-    6: { id: string; hash: number };
-    7: { id: string; hash: number };
-    8: { id: string; hash: number };
-    9: { id: string; hash: number };
-    10: { id: string; hash: number };
+    [key: number]: { id: string; hash: number };
 }
 
 export interface Equipped {

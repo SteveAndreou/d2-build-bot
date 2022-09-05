@@ -9,6 +9,7 @@ import {
 import { Discord, ModalComponent, Slash } from 'discordx';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
+import { BuildDiscordEmbed } from '../embeds/build.js';
 import { db } from '../main.js';
 import { Builds } from '../types.js';
 
@@ -73,16 +74,31 @@ export class AddBuild {
         //Post to database
         const existing = await db.from<Builds>('builds').select('link').eq('link', link);
 
-        if (existing.data && existing.data.length === 0) {
-            const update = await db
-                .from<Builds>('builds')
-                .insert([{ link: link, class: build.guardianClass, subclass: build.subClass }], {
-                    returning: 'minimal',
-                });
-            console.log(update);
+        let id = '??';
+        if (existing.status === 200 && existing.data) {
+            //grab the id from existing entry
+            console.log(existing);
+
+            if (existing.data.length > 0) {
+                console.log(existing.data[0]);
+
+                id = existing.data[0].id;
+            }
+
+            // create new entry
+            if (existing.data.length === 0) {
+                const update = await db
+                    .from<Builds>('builds')
+                    .insert([{ link: link, class: build.guardianClass, subclass: build.subClass }], {
+                        returning: 'minimal',
+                    });
+
+                if (update.status === 200 && update.data) {
+                    id = update.data[0].id;
+                }
+            }
         }
 
-        const embed = build.buildDiscordResponse();
-        interaction.reply({ embeds: [embed] });
+        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)] });
     }
 }
