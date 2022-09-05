@@ -1,9 +1,17 @@
 export type Builds = {
     id: string;
     link: string;
+    description: string;
     created_at: string;
     class: string;
     subclass: string;
+    damage: string | null;
+    grenade: string | null;
+    melee: string | null;
+    ability: string | null;
+    super: string | null;
+    exotic_weapon: string | null;
+    exotic_armour: string | null;
 };
 
 export type EquipmentItem = {

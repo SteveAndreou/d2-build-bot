@@ -1,5 +1,5 @@
 import { Bungie } from './destiny/bungie.js';
-import { createClient } from '@supabase/supabase-js';
+import { Supabase } from './database/supabase.js';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 
@@ -24,15 +24,14 @@ export const bot = new Client({
     // Debug logs are disabled in silent mode
     silent: false,
 
-    // Configuration for @SimpleCommand
-    simpleCommand: {
-        prefix: '!',
-    },
+    // // Configuration for @SimpleCommand
+    // simpleCommand: {
+    //     prefix: '!',
+    // },
 });
 
 export const bungie = new Bungie();
-
-export const db = createClient(`${process.env.SUPABASE_URL}`, `${process.env.SUPABASE_KEY}`);
+export const supabase = new Supabase();
 
 bot.once('ready', async () => {
     // Make sure all guilds are cached

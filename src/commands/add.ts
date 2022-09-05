@@ -10,7 +10,7 @@ import { Discord, ModalComponent, Slash } from 'discordx';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
-import { db } from '../main.js';
+import { supabase } from '../main.js';
 import { Builds } from '../types.js';
 
 @Discord()
@@ -72,26 +72,34 @@ export class AddBuild {
         const build = new DestinyBuild(loadout, link, description);
 
         //Post to database
-        const existing = await db.from<Builds>('builds').select('id, link').eq('link', link);
+        const { data, status } = await supabase.database.from<Builds>('builds').select('id, link').eq('link', link);
 
         let id = '??';
-        if (existing.status === 200 && existing.data) {
+        if (status === 200 && data) {
             //grab the id from existing entry
-            if (existing.data.length > 0) {
-                id = existing.data[0].id;
+            if (data.length > 0) {
+                id = data[0].id;
             }
 
             // create new entry
-            if (existing.data.length === 0) {
-                const update = await db
-                    .from<Builds>('builds')
-                    .insert([{ link: link, class: build.guardianClass, subclass: build.subClass }], {
-                        returning: 'minimal',
-                    });
+            if (data.length === 0) {
+                const newEntry = await supabase.database.from<Builds>('builds').insert([
+                    {
+                        link: link,
+                        class: build.guardianClass,
+                        description: build.description,
+                        subclass: build.subClass,
+                        damage: build.damageType,
+                        grenade: build.grenade?.name ?? null,
+                        melee: build.melee?.name ?? null,
+                        ability: build.classAbility?.name ?? null,
+                        super: build.superAbility?.name ?? null,
+                        exotic_weapon: build.exotic_weapon?.name,
+                        exotic_armour: build.exotic_armour?.name,
+                    },
+                ]);
 
-                if (update.status === 200 && update.data) {
-                    id = update.data[0].id;
-                }
+                console.log(newEntry);
             }
         }
 

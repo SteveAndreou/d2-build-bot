@@ -1,7 +1,7 @@
 import { Builds } from './../types.js';
 import type { CommandInteraction } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
-import { db } from '../main.js';
+import { supabase } from '../main.js';
 
 @Discord()
 export class FindBuild {
@@ -20,9 +20,11 @@ export class FindBuild {
 
     async find(guardian: string) {
         let output = '';
-        const builds = await db
+        const builds = await supabase.database
             .from<Builds>('builds')
-            .select('id, link, class, subclass')
+            .select(
+                'id, link, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour'
+            )
             .filter('class', 'eq', guardian);
 
         console.log(builds);

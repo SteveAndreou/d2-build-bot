@@ -37,6 +37,9 @@ export class DestinyBuild {
 
     mods: Dictionary<Array<ModItem>>;
 
+    exotic_weapon: EquipmentItem | null;
+    exotic_armour: EquipmentItem | null;
+
     constructor(loadout: Loadout, link: string, description: string) {
         this._loadout = loadout;
 
@@ -65,6 +68,9 @@ export class DestinyBuild {
         this.chest = null;
         this.leg = null;
         this.classItem = null;
+
+        this.exotic_armour = null;
+        this.exotic_weapon = null;
 
         this.mods = {};
 
@@ -148,5 +154,9 @@ export class DestinyBuild {
             items.find(
                 (x) => x.type?.startsWith('Hunter') || x.type?.startsWith('Warlock') || x.type?.startsWith('Titan')
             ) ?? null;
+
+        const exotics = items.filter((x) => x.rarity === 'Exotic');
+        this.exotic_weapon = exotics.find((x) => x.slot.includes('Weapons')) ?? null;
+        this.exotic_armour = exotics.find((x) => !x.slot.includes('Weapons')) ?? null;
     }
 }
