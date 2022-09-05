@@ -20,7 +20,10 @@ export class FindBuild {
 
     async find(guardian: string) {
         let output = '';
-        const builds = await db.from<Builds>('builds').select('link, class, subclass').filter('class', 'eq', guardian);
+        const builds = await db
+            .from<Builds>('builds')
+            .select('id, link, class, subclass')
+            .filter('class', 'eq', guardian);
 
         console.log(builds);
         if (builds.data) {

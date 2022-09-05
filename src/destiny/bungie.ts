@@ -1,3 +1,5 @@
+import { DamageTypes } from '../types';
+
 export type ItemDefinition = {
     displayProperties: { name: string; description: string; icon: string };
     hash: number;
@@ -6,6 +8,9 @@ export type ItemDefinition = {
     inventory: {
         tierTypeName: string;
         bucketTypeHash: number;
+    };
+    talentGrid: {
+        hudDamageType: DamageTypes;
     };
 };
 

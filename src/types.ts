@@ -32,6 +32,15 @@ export enum ClassTypes {
     Warlock = 2,
 }
 
+export enum DamageTypes {
+    Kinetic = 1,
+    Arc = 2,
+    Solar = 3,
+    Void = 4,
+    Raid = 5,
+    Stasis = 6,
+}
+
 export type InventoryBucketDefinitions = {
     displayProperties: { name: string; description: string; icon: string };
     hash: number;
@@ -49,8 +58,6 @@ export interface Equipped {
 
 export interface Parameters {
     mods: number[];
-    lockArmorEnergyType: number;
-    assumeArmorMasterwork: number;
 }
 
 export interface Loadout {
@@ -61,4 +68,8 @@ export interface Loadout {
     equipped: Equipped[];
     createdAt: Date;
     parameters: Parameters;
+}
+
+export interface Dictionary<T> {
+    [index: string]: T;
 }

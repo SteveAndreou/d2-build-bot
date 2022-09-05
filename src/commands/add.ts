@@ -9,7 +9,7 @@ import {
 import { Discord, ModalComponent, Slash } from 'discordx';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
-import { BuildDiscordEmbed } from '../embeds/build.js';
+import { BuildDiscordEmbed } from '../helpers/embeds.js';
 import { db } from '../main.js';
 import { Builds } from '../types.js';
 
@@ -72,16 +72,12 @@ export class AddBuild {
         const build = new DestinyBuild(loadout, link, description);
 
         //Post to database
-        const existing = await db.from<Builds>('builds').select('link').eq('link', link);
+        const existing = await db.from<Builds>('builds').select('id, link').eq('link', link);
 
         let id = '??';
         if (existing.status === 200 && existing.data) {
             //grab the id from existing entry
-            console.log(existing);
-
             if (existing.data.length > 0) {
-                console.log(existing.data[0]);
-
                 id = existing.data[0].id;
             }
 

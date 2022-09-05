@@ -20,9 +20,11 @@
         "discord.js": "^14.3.0",
         "discordx": "^11.1.12",
         "dotenv": "^16.0.2",
+        "lodash.groupby": "^4.6.0",
         "reflect-metadata": "^0.1.13"
     },
     "devDependencies": {
+        "@types/lodash.groupby": "^4.6.7",
         "@types/node": "^18.7.14",
         "nodemon": "^2.0.19",
         "prettier": "^2.7.1",

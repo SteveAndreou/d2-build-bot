@@ -1,7 +1,7 @@
-import { Loadout, EquipmentItem, ModItem, ClassSocketItem, ClassTypes } from '../types.js';
+import { Loadout, EquipmentItem, ModItem, ClassSocketItem, ClassTypes, Dictionary, DamageTypes } from '../types.js';
 import { bungie } from '../main.js';
 import { EmbedBuilder } from 'discord.js';
-
+import groupBy from 'lodash.groupby';
 export class DestinyBuild {
     private _loadout: Loadout;
 
@@ -12,6 +12,7 @@ export class DestinyBuild {
     guardianClass: string;
     subClass: string;
     subClassIcon: string;
+    damageType: string;
 
     //class
     melee: ClassSocketItem | null;
@@ -34,7 +35,7 @@ export class DestinyBuild {
     leg: EquipmentItem | null;
     classItem: EquipmentItem | null;
 
-    mods: Array<ModItem> | null;
+    mods: Dictionary<Array<ModItem>>;
 
     constructor(loadout: Loadout, link: string, description: string) {
         this._loadout = loadout;
@@ -43,6 +44,7 @@ export class DestinyBuild {
         this.guardianClass = ClassTypes[loadout.classType];
         this.subClass = '';
         this.subClassIcon = '';
+        this.damageType = '';
         this.description = description;
         this.link = link;
 
@@ -64,7 +66,7 @@ export class DestinyBuild {
         this.leg = null;
         this.classItem = null;
 
-        this.mods = null;
+        this.mods = {};
 
         this.processLoadout();
     }
@@ -77,7 +79,9 @@ export class DestinyBuild {
 
         const guardianClass = equipped.find((x) => x.socketOverrides !== undefined);
         const subclass = bungie.itemDefinitions.get(`${guardianClass?.hash}`);
+
         this.subClass = `${subclass?.displayProperties.name}`;
+        this.damageType = DamageTypes[subclass?.talentGrid.hudDamageType ?? 0];
         this.subClassIcon = `${subclass?.displayProperties.icon}`;
 
         const sockets = guardianClass?.socketOverrides;
@@ -109,16 +113,19 @@ export class DestinyBuild {
                     } as EquipmentItem)
             );
 
-        this.mods = mods
-            .map((x) => bungie.itemDefinitions.get(`${x}`))
-            .map(
-                (x) =>
-                    ({
-                        name: x?.displayProperties.name,
-                        icon: x?.displayProperties.icon,
-                        type: x?.itemTypeDisplayName,
-                    } as ModItem)
-            );
+        this.mods = groupBy(
+            mods
+                .map((x) => bungie.itemDefinitions.get(`${x}`))
+                .map(
+                    (x) =>
+                        ({
+                            name: x?.displayProperties.name,
+                            icon: x?.displayProperties.icon,
+                            type: x?.itemTypeDisplayName,
+                        } as ModItem)
+                ),
+            (x) => x.type
+        );
 
         this.melee = classSocketItems.find((x) => x.type.includes('Melee')) ?? null;
         this.grenade = classSocketItems.find((x) => x.type.includes('Grenade')) ?? null;
