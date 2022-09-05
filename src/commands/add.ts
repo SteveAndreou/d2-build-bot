@@ -56,11 +56,6 @@ export class AddBuild {
 
         const url = new URL(link);
 
-        if (url.hostname !== 'dim.gg') {
-            await interaction.reply('I dont recognise that URL');
-            return;
-        }
-
         const loadout = await DIM.getBuild(url);
 
         if (loadout === null) {

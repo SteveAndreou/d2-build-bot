@@ -5,6 +5,10 @@ export class DIM {
     constructor() {}
 
     static async getBuild(buildURL: URL): Promise<Loadout | null> {
+        if (buildURL.hostname !== 'dim.gg') {
+            return null;
+        }
+
         const response = await fetch(buildURL);
         const body = await response.text();
 
