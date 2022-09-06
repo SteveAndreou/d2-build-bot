@@ -1,6 +1,13 @@
 import { Build } from '../types.js';
-import type { CommandInteraction } from 'discord.js';
-import { Discord, Slash, SlashOption } from 'discordx';
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonInteraction,
+    ButtonStyle,
+    CommandInteraction,
+    MessageActionRowComponentBuilder,
+} from 'discord.js';
+import { Discord, Slash, SlashOption, ButtonComponent } from 'discordx';
 import { supabase } from '../main.js';
 import { DIM } from '../destiny/dim.js';
 import { DestinyBuild } from '../destiny/build.js';
@@ -40,7 +47,44 @@ export class GetBuild {
             description: result.description,
         });
 
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)] });
+        const btn = new ButtonBuilder()
+            .setEmoji('👍')
+            .setLabel('Up vote')
+            .setStyle(ButtonStyle.Success)
+            .setCustomId(`upvote-${result.id}`);
+
+        const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
+        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)], components: [buttonRow] });
+    }
+
+    @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
+    async upvote_handler(interaction: ButtonInteraction): Promise<void> {
+        console.log(interaction.customId);
+        const id = interaction.customId.split('-')[1];
+
+        const ok = await this.upvote(id);
+        interaction.reply({
+            content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
+            ephemeral: true,
+        });
+    }
+
+    async upvote(id: string) {
+        const { data } = await supabase.database
+            .from<Build>('builds')
+            .select('id, rating')
+            .eq('id', id)
+            .limit(1)
+            .single();
+
+        const currentRating = data?.rating ?? 0;
+
+        const { status } = await supabase.database
+            .from<Build>('builds')
+            .update({ rating: currentRating + 1 })
+            .eq('id', id);
+
+        return status === 200;
     }
 
     async get(id: string) {

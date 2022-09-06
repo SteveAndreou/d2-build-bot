@@ -5,6 +5,9 @@ import {
     TextInputBuilder,
     TextInputStyle,
     ModalSubmitInteraction,
+    ButtonBuilder,
+    ButtonStyle,
+    MessageActionRowComponentBuilder,
 } from 'discord.js';
 import { Discord, ModalComponent, Slash } from 'discordx';
 import { DestinyBuild } from '../destiny/build.js';
@@ -109,6 +112,9 @@ export class AddBuild {
             }
         }
 
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)] });
+        const btn = new ButtonBuilder().setLabel('Up vote').setStyle(ButtonStyle.Success).setCustomId('upvote');
+        const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
+
+        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)], components: [buttonRow] });
     }
 }
