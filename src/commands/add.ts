@@ -80,6 +80,7 @@ export class AddBuild {
             if (data.length === 0) {
                 const newEntry = await supabase.database.from<Builds>('builds').insert([
                     {
+                        name: build.name,
                         link: link,
                         class: build.guardianClass,
                         description: build.description,
@@ -93,8 +94,6 @@ export class AddBuild {
                         exotic_armour: build.exotic_armour?.name,
                     },
                 ]);
-
-                console.log(newEntry);
             }
         }
 

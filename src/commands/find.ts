@@ -1,10 +1,14 @@
 import { Builds } from './../types.js';
 import type { CommandInteraction } from 'discord.js';
 import { Discord, Slash, SlashChoice, SlashOption } from 'discordx';
+import { ButtonStyle, EmbedBuilder } from 'discord.js';
 import { supabase } from '../main.js';
-import { DestinyBuild } from '../destiny/build.js';
-import { DIM } from '../destiny/dim.js';
-import { BuildDiscordEmbed } from '../helpers/embeds.js';
+import { Pagination, PaginationResolver, PaginationType } from '@discordx/pagination';
+
+type SearchOptions = {
+    guardian: string;
+    subclass: string;
+};
 
 @Discord()
 export class FindBuild {
@@ -32,52 +36,55 @@ export class FindBuild {
 
         interaction: CommandInteraction
     ): Promise<void> {
-        // const lwrGuardian = guardian.toLowerCase();
-        // const lwrSubclass = subclass.toLowerCase();
+        const getPage = new PaginationResolver(async (page, pagination) => {
+            const currentPage = page + 1; //zero index page
+            const { data, totalPages } = await this.search({ guardian, subclass }, currentPage);
+            console.log({ data, totalPages });
 
-        // if (!['titan', 'warlock', 'hunter'].includes(lwrGuardian)) {
-        //     interaction.reply(`I don't know about ${guardian}...`);
-        //     return;
-        // }
+            const embed = new EmbedBuilder().setTitle(`${guardian} - ${subclass}`);
 
-        // if (!['solar', 'arc', 'void', 'stasis'].includes(lwrSubclass)) {
-        //     interaction.reply(`I don't know about ${subclass}...`);
-        //     return;
-        // }
+            data?.forEach((build) => {
+                embed.addFields({
+                    name: `[${build.id}] ${build.name}`,
+                    value: `${build.description ?? ''} \u000D ${build.link}`,
+                    inline: false,
+                });
+            });
 
-        const result = await this.find(guardian, subclass);
+            embed.setFooter({ text: `Page ${currentPage} / ${totalPages}` });
 
-        if (!result) {
-            interaction.reply("...Couldn't find anything");
-            return;
-        }
+            pagination.maxLength = totalPages; // new max length for new pagination
+            pagination.embeds = [embed]; // page reference can be resolver as well
+            return pagination.embeds[pagination.currentPage] ?? 'unknown';
+        }, 25);
 
-        const url = new URL(`${result?.link}`);
+        const pagination = new Pagination(interaction, getPage, {
+            onTimeout: () => interaction.deleteReply(),
+            time: 60 * 1000,
+            type: PaginationType.Button,
+        });
 
-        const loadout = await DIM.getBuild(url);
-
-        if (loadout === null) {
-            interaction.reply("I couldn't find the loadout link");
-            return;
-        }
-
-        //parse the build
-        const build = new DestinyBuild(loadout, result.link, result.description);
-
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)] });
+        pagination.send();
     }
 
-    async find(guardian: string, subclass: string) {
-        const builds = await supabase.database
-            .from<Builds>('random_build')
-            .select(
-                'id, link, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour'
-            )
-            .ilike('class', guardian)
-            .ilike('damage', subclass)
-            .limit(1)
-            .single();
+    async search(searchOptions: SearchOptions, page: number = 1) {
+        const pageSize = 5;
+        const start = page * pageSize - pageSize;
+        const end = page * pageSize;
 
-        return builds.data;
+        const { data, count, error } = await supabase.database
+            .from<Builds>('builds')
+            .select(
+                'id, name, link, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour',
+                { count: 'exact' }
+            )
+            .ilike('class', searchOptions.guardian)
+            .ilike('damage', searchOptions.subclass)
+            .range(start, end)
+            .limit(pageSize);
+
+        const totalPages = count ? Math.ceil(count / pageSize) : 1;
+
+        return { data, totalPages };
     }
 }

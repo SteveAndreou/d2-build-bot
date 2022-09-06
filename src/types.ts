@@ -1,5 +1,6 @@
 export type Builds = {
     id: string;
+    name: string;
     link: string;
     description: string;
     created_at: string;
