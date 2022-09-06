@@ -1,4 +1,4 @@
-import { Builds } from '../types.js';
+import { Build } from '../types.js';
 import type { CommandInteraction } from 'discord.js';
 import { Discord, Slash, SlashOption } from 'discordx';
 import { supabase } from '../main.js';
@@ -34,16 +34,20 @@ export class GetBuild {
         }
 
         //parse the build
-        const build = new DestinyBuild(loadout, result.link, result.description);
+        const build = new DestinyBuild(loadout, result.link, {
+            author: result.author,
+            rating: result.rating,
+            description: result.description,
+        });
 
         interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)] });
     }
 
     async get(id: string) {
         const { data } = await supabase.database
-            .from<Builds>('builds')
+            .from<Build>('builds')
             .select(
-                'id, link, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour'
+                'id, link, rating, author, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour'
             )
             .filter('id', 'eq', id)
             .limit(1)

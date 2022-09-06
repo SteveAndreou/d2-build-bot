@@ -1,4 +1,4 @@
-import { Builds } from './../types.js';
+import { Build } from './../types.js';
 import type { CommandInteraction } from 'discord.js';
 import { Discord, Slash, SlashChoice, SlashOption } from 'discordx';
 import { ButtonStyle, EmbedBuilder } from 'discord.js';
@@ -73,9 +73,9 @@ export class FindBuild {
         const end = page * pageSize;
 
         const { data, count, error } = await supabase.database
-            .from<Builds>('builds')
+            .from<Build>('builds')
             .select(
-                'id, name, link, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour',
+                'id, name, rating, author, link, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour',
                 { count: 'exact' }
             )
             .ilike('class', searchOptions.guardian)

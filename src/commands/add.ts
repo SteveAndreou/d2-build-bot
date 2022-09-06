@@ -11,7 +11,7 @@ import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
 import { supabase } from '../main.js';
-import { Builds } from '../types.js';
+import { Build } from '../types.js';
 
 @Discord()
 export class AddBuild {
@@ -46,6 +46,7 @@ export class AddBuild {
 
     @ModalComponent()
     async BuildCreate(interaction: ModalSubmitInteraction): Promise<void> {
+        const user = interaction.user;
         const link = interaction.fields.getTextInputValue('link');
         const description = interaction.fields.getTextInputValue('description');
 
@@ -64,10 +65,14 @@ export class AddBuild {
         }
 
         //parse the build
-        const build = new DestinyBuild(loadout, link, description);
+        const build = new DestinyBuild(loadout, link, {
+            author: user.tag,
+            rating: 0,
+            description: description,
+        });
 
         //Post to database
-        const { data, status } = await supabase.database.from<Builds>('builds').select('id, link').eq('link', link);
+        const { data, status } = await supabase.database.from<Build>('builds').select('id, link').eq('link', link);
 
         let id = '??';
         if (status === 200 && data) {
@@ -78,22 +83,29 @@ export class AddBuild {
 
             // create new entry
             if (data.length === 0) {
-                const newEntry = await supabase.database.from<Builds>('builds').insert([
-                    {
-                        name: build.name,
-                        link: link,
-                        class: build.guardianClass,
-                        description: build.description,
-                        subclass: build.subClass,
-                        damage: build.damageType,
-                        grenade: build.grenade?.name ?? null,
-                        melee: build.melee?.name ?? null,
-                        ability: build.classAbility?.name ?? null,
-                        super: build.superAbility?.name ?? null,
-                        exotic_weapon: build.exotic_weapon?.name,
-                        exotic_armour: build.exotic_armour?.name,
-                    },
-                ]);
+                const newEntry = await supabase.database
+                    .from<Build>('builds')
+                    .insert([
+                        {
+                            name: build.name,
+                            author: user.tag,
+                            rating: 0,
+                            link: link,
+                            class: build.guardianClass,
+                            description: build.description,
+                            subclass: build.subClass,
+                            damage: build.damageType,
+                            grenade: build.grenade?.name ?? null,
+                            melee: build.melee?.name ?? null,
+                            ability: build.classAbility?.name ?? null,
+                            super: build.superAbility?.name ?? null,
+                            exotic_weapon: build.exotic_weapon?.name,
+                            exotic_armour: build.exotic_armour?.name,
+                        },
+                    ])
+                    .single();
+
+                id = newEntry.body?.id ?? '??';
             }
         }
 

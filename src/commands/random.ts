@@ -1,4 +1,4 @@
-import { Builds } from './../types.js';
+import { Build } from './../types.js';
 import type { CommandInteraction } from 'discord.js';
 import { Discord, Slash } from 'discordx';
 import { supabase } from '../main.js';
@@ -30,13 +30,21 @@ export class RandomBuild {
         }
 
         //parse the build
-        const build = new DestinyBuild(loadout, randomBuild.link, randomBuild.description);
+        const build = new DestinyBuild(loadout, randomBuild.link, {
+            author: randomBuild.author,
+            rating: randomBuild.rating,
+            description: randomBuild.description,
+        });
 
         interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(randomBuild.id, build)] });
     }
 
     async rand() {
-        const randomItem = await supabase.database.from<Builds>('random_build').select('id, link').limit(1).single();
+        const randomItem = await supabase.database
+            .from<Build>('random_builds')
+            .select('id, link, author, rating, description')
+            .limit(1)
+            .single();
         return randomItem.data;
     }
 }

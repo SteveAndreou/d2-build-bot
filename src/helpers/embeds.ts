@@ -11,6 +11,7 @@ export class BuildDiscordEmbed {
             .setColor(0x0099ff)
             .setTitle(build.name)
             .setURL(build.link)
+            .setAuthor({ name: build.author })
             .setDescription(
                 `[${id}] ${build.guardianClass} - ${CustomEmoji[`${build.damageType as keyof typeof CustomEmoji}`]} ${
                     build.subClass

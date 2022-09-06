@@ -1,5 +1,7 @@
-export type Builds = {
+export type Build = {
     id: string;
+    author: string;
+    rating: number;
     name: string;
     link: string;
     description: string;
@@ -13,6 +15,12 @@ export type Builds = {
     super: string | null;
     exotic_weapon: string | null;
     exotic_armour: string | null;
+};
+
+export type BuildMetadata = {
+    author: string;
+    rating: number;
+    description: string;
 };
 
 export type EquipmentItem = {

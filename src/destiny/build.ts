@@ -1,3 +1,4 @@
+import { BuildMetadata } from './../types';
 import { Loadout, EquipmentItem, ModItem, ClassSocketItem, ClassTypes, Dictionary, DamageTypes } from '../types.js';
 import { bungie } from '../main.js';
 import { EmbedBuilder } from 'discord.js';
@@ -6,6 +7,8 @@ export class DestinyBuild {
     private _loadout: Loadout;
 
     //general
+    author: string;
+    rating: number;
     description: string;
     link: string;
     name: string;
@@ -40,15 +43,18 @@ export class DestinyBuild {
     exotic_weapon: EquipmentItem | null;
     exotic_armour: EquipmentItem | null;
 
-    constructor(loadout: Loadout, link: string, description: string) {
+    constructor(loadout: Loadout, link: string, metadata: BuildMetadata) {
         this._loadout = loadout;
+
+        this.author = metadata.author;
+        this.rating = metadata.rating;
+        this.description = metadata.description;
 
         this.name = loadout.name;
         this.guardianClass = ClassTypes[loadout.classType];
         this.subClass = '';
         this.subClassIcon = '';
         this.damageType = '';
-        this.description = description;
         this.link = link;
 
         this.melee = null;
