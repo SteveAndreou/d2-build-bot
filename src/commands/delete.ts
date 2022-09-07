@@ -1,4 +1,4 @@
-import { database } from './../main';
+import { database } from '../main.js';
 import type { CommandInteraction } from 'discord.js';
 import { Discord, Slash, SlashOption, Guard } from 'discordx';
 import { RateLimit, TIME_UNIT } from '@discordx/utilities';
