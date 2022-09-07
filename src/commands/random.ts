@@ -1,7 +1,6 @@
-import { Build } from './../types.js';
 import type { CommandInteraction } from 'discord.js';
 import { Discord, Slash } from 'discordx';
-import { supabase } from '../main.js';
+import { database } from '../main.js';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
@@ -13,7 +12,7 @@ export class RandomBuild {
         description: 'Random a build to play',
     })
     async randomBuild(interaction: CommandInteraction): Promise<void> {
-        const randomBuild = await this.rand();
+        const randomBuild = await database.rand();
 
         if (!randomBuild) {
             interaction.reply("...Couldn't find anything");
@@ -37,14 +36,5 @@ export class RandomBuild {
         });
 
         interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(randomBuild.id, build)] });
-    }
-
-    async rand() {
-        const randomItem = await supabase.database
-            .from<Build>('random_builds')
-            .select('id, link, author, rating, description')
-            .limit(1)
-            .single();
-        return randomItem.data;
     }
 }

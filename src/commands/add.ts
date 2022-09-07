@@ -13,8 +13,7 @@ import { Discord, ModalComponent, Slash } from 'discordx';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
-import { supabase } from '../main.js';
-import { Build } from '../types.js';
+import { database } from '../main.js';
 
 @Discord()
 export class AddBuild {
@@ -75,41 +74,10 @@ export class AddBuild {
         });
 
         //Post to database
-        const { data, status } = await supabase.database.from<Build>('builds').select('id, link').eq('link', link);
+        let id = await database.exists(link);
 
-        let id = '??';
-        if (status === 200 && data) {
-            //grab the id from existing entry
-            if (data.length > 0) {
-                id = data[0].id;
-            }
-
-            // create new entry
-            if (data.length === 0) {
-                const newEntry = await supabase.database
-                    .from<Build>('builds')
-                    .insert([
-                        {
-                            name: build.name,
-                            author: user.tag,
-                            rating: 0,
-                            link: link,
-                            class: build.guardianClass,
-                            description: build.description,
-                            subclass: build.subClass,
-                            damage: build.damageType,
-                            grenade: build.grenade?.name ?? null,
-                            melee: build.melee?.name ?? null,
-                            ability: build.classAbility?.name ?? null,
-                            super: build.superAbility?.name ?? null,
-                            exotic_weapon: build.exotic_weapon?.name,
-                            exotic_armour: build.exotic_armour?.name,
-                        },
-                    ])
-                    .single();
-
-                id = newEntry.body?.id ?? '??';
-            }
+        if (id === null) {
+            id = await database.create(build);
         }
 
         const btn = new ButtonBuilder().setLabel('Up vote').setStyle(ButtonStyle.Success).setCustomId('upvote');

@@ -90,3 +90,8 @@ export interface Loadout {
 export interface Dictionary<T> {
     [index: string]: T;
 }
+
+export type SearchOptions = {
+    guardian: string;
+    subclass: string;
+};

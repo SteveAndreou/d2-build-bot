@@ -1,7 +1,6 @@
 import { BuildMetadata } from './../types';
 import { Loadout, EquipmentItem, ModItem, ClassSocketItem, ClassTypes, Dictionary, DamageTypes } from '../types.js';
 import { bungie } from '../main.js';
-import { EmbedBuilder } from 'discord.js';
 import groupBy from 'lodash.groupby';
 export class DestinyBuild {
     private _loadout: Loadout;

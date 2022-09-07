@@ -1,10 +1,10 @@
-import { Bungie } from './destiny/bungie.js';
-import { Supabase } from './database/supabase.js';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 
-import { dirname, importx } from '@discordx/importer';
 import type { Interaction, Message } from 'discord.js';
+import { Bungie } from './destiny/bungie.js';
+import { Supabase } from './database/supabase.js';
+import { dirname, importx } from '@discordx/importer';
 import { IntentsBitField } from 'discord.js';
 import { Client } from 'discordx';
 
@@ -31,7 +31,7 @@ export const bot = new Client({
 });
 
 export const bungie = new Bungie();
-export const supabase = new Supabase();
+export const database = new Supabase();
 
 bot.once('ready', async () => {
     // Make sure all guilds are cached

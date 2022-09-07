@@ -1,4 +1,3 @@
-import { Build } from '../types.js';
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -8,7 +7,7 @@ import {
     MessageActionRowComponentBuilder,
 } from 'discord.js';
 import { Discord, Slash, SlashOption, ButtonComponent } from 'discordx';
-import { supabase } from '../main.js';
+import { database } from '../main.js';
 import { DIM } from '../destiny/dim.js';
 import { DestinyBuild } from '../destiny/build.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
@@ -24,7 +23,7 @@ export class GetBuild {
         id: string,
         interaction: CommandInteraction
     ): Promise<void> {
-        const result = await this.get(id);
+        const result = await database.get(id);
 
         if (!result) {
             interaction.reply("...Couldn't find anything");
@@ -59,44 +58,12 @@ export class GetBuild {
 
     @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
     async upvote_handler(interaction: ButtonInteraction): Promise<void> {
-        console.log(interaction.customId);
         const id = interaction.customId.split('-')[1];
 
-        const ok = await this.upvote(id);
+        const ok = await database.upvote(id);
         interaction.reply({
             content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
             ephemeral: true,
         });
-    }
-
-    async upvote(id: string) {
-        const { data } = await supabase.database
-            .from<Build>('builds')
-            .select('id, rating')
-            .eq('id', id)
-            .limit(1)
-            .single();
-
-        const currentRating = data?.rating ?? 0;
-
-        const { status } = await supabase.database
-            .from<Build>('builds')
-            .update({ rating: currentRating + 1 })
-            .eq('id', id);
-
-        return status === 200;
-    }
-
-    async get(id: string) {
-        const { data } = await supabase.database
-            .from<Build>('builds')
-            .select(
-                'id, link, rating, author, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour'
-            )
-            .filter('id', 'eq', id)
-            .limit(1)
-            .single();
-
-        return data;
     }
 }
