@@ -6,11 +6,12 @@ import {
     CommandInteraction,
     MessageActionRowComponentBuilder,
 } from 'discord.js';
-import { Discord, Slash, SlashOption, ButtonComponent } from 'discordx';
+import { Discord, Slash, SlashOption, ButtonComponent, Guard } from 'discordx';
 import { database } from '../main.js';
 import { DIM } from '../destiny/dim.js';
 import { DestinyBuild } from '../destiny/build.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
+import { RateLimit, TIME_UNIT } from '@discordx/utilities';
 
 @Discord()
 export class GetBuild {
@@ -18,6 +19,7 @@ export class GetBuild {
         name: 'get',
         description: 'Get a build by ID',
     })
+    @Guard(RateLimit(TIME_UNIT.seconds, 30))
     async findBuild(
         @SlashOption({ description: 'ID value for the build', name: 'id' })
         id: string,

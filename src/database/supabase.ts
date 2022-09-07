@@ -103,4 +103,38 @@ export class Supabase {
 
         return { data, totalPages };
     }
+
+    async mine(author: string, page: number = 1) {
+        const pageSize = 5;
+        const start = page * pageSize - pageSize;
+        const end = page * pageSize;
+
+        const { data, count, error } = await this.database
+            .from<Build>('builds')
+            .select(
+                'id, name, rating, author, link, description, class, subclass, damage, grenade, melee, super, ability, exotic_weapon, exotic_armour',
+                { count: 'exact' }
+            )
+            .ilike('author', author)
+            .range(start, end)
+            .limit(pageSize);
+
+        const totalPages = count ? Math.ceil(count / pageSize) : 1;
+
+        return { data, totalPages };
+    }
+
+    async delete(id: string, tag: string) {
+        const build = await this.get(id);
+
+        if (build === null) return false;
+
+        if (build.author === tag) {
+            const { status } = await this.database.from<Build>('builds').delete().match({ id: build.id });
+
+            return status === 200;
+        }
+
+        return false;
+    }
 }

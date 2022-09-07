@@ -5,15 +5,17 @@ import {
     TextInputBuilder,
     TextInputStyle,
     ModalSubmitInteraction,
-    ButtonBuilder,
-    ButtonStyle,
+    ButtonInteraction,
     MessageActionRowComponentBuilder,
+    ButtonStyle,
+    ButtonBuilder,
 } from 'discord.js';
-import { Discord, ModalComponent, Slash } from 'discordx';
+import { Discord, ModalComponent, ButtonComponent, Slash, Guard } from 'discordx';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
 import { database } from '../main.js';
+import { RateLimit, TIME_UNIT } from '@discordx/utilities';
 
 @Discord()
 export class AddBuild {
@@ -21,6 +23,7 @@ export class AddBuild {
         name: 'add',
         description: 'Add a build to the build bot',
     })
+    @Guard(RateLimit(TIME_UNIT.seconds, 30))
     addBuild(interaction: CommandInteraction): void {
         //as more about the build
         const modal = new ModalBuilder().setTitle(`Add new Build`).setCustomId('BuildCreate');
@@ -80,9 +83,24 @@ export class AddBuild {
             id = await database.create(build);
         }
 
-        const btn = new ButtonBuilder().setLabel('Up vote').setStyle(ButtonStyle.Success).setCustomId('upvote');
-        const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
+        const btn = new ButtonBuilder()
+            .setEmoji('👍')
+            .setLabel('Up vote')
+            .setStyle(ButtonStyle.Success)
+            .setCustomId(`upvote-${id}`);
 
+        const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
         interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)], components: [buttonRow] });
+    }
+
+    @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
+    async upvote_handler(interaction: ButtonInteraction): Promise<void> {
+        const id = interaction.customId.split('-')[1];
+
+        const ok = await database.upvote(id);
+        interaction.reply({
+            content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
+            ephemeral: true,
+        });
     }
 }

@@ -1,9 +1,10 @@
 import type { CommandInteraction } from 'discord.js';
-import { Discord, Slash } from 'discordx';
+import { Discord, Slash, Guard } from 'discordx';
 import { database } from '../main.js';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
+import { RateLimit, TIME_UNIT } from '@discordx/utilities';
 
 @Discord()
 export class RandomBuild {
@@ -11,6 +12,7 @@ export class RandomBuild {
         name: 'random',
         description: 'Random a build to play',
     })
+    @Guard(RateLimit(TIME_UNIT.seconds, 30))
     async randomBuild(interaction: CommandInteraction): Promise<void> {
         const randomBuild = await database.rand();
 
