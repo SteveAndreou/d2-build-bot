@@ -8,7 +8,7 @@ WORKDIR /tmp/app
 COPY package.json .
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
 # Move source files
 COPY src ./src
