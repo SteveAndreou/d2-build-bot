@@ -1,5 +1,6 @@
 import { Loadout } from '../types.js';
 import { load } from 'cheerio';
+import fetch from 'node-fetch';
 
 export class DIM {
     constructor() {}
@@ -9,7 +10,7 @@ export class DIM {
             return null;
         }
 
-        const response = await fetch(buildURL);
+        const response = await fetch(buildURL.toString());
         const body = await response.text();
 
         const $ = load(body);

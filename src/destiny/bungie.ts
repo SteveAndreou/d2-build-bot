@@ -1,4 +1,5 @@
 import { DamageTypes } from '../types';
+import fetch from 'node-fetch';
 
 export type ItemDefinition = {
     displayProperties: { name: string; description: string; icon: string };
@@ -28,13 +29,15 @@ export class Bungie {
     async getManifest() {
         const englishManifestLocation = await fetch('https://bungie.net/Platform/Destiny2/Manifest')
             .then((response) => response.json())
+            .then((response) => response as any)
             .then((response) => response.Response.jsonWorldContentPaths.en);
 
-        const englishContent = await fetch(`https://bungie.net${englishManifestLocation}`).then((response) =>
-            response.json()
-        );
+        const englishContent = await fetch(`https://bungie.net${englishManifestLocation}`)
+            .then((response) => response.json())
+            .then((response) => response as any);
 
-        const { DestinyInventoryItemDefinition, DestinyInventoryBucketDefinition } = englishContent;
+        const DestinyInventoryItemDefinition = englishContent.DestinyInventoryBucketDefinition;
+        const DestinyInventoryBucketDefinition = englishContent.DestinyInventoryBucketDefinition;
 
         this.itemDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryItemDefinition));
         this.bucketDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryBucketDefinition));

@@ -22,6 +22,7 @@
         "discordx": "^11.1.12",
         "dotenv": "^16.0.2",
         "lodash.groupby": "^4.6.0",
+        "node-fetch": "^3.2.10",
         "reflect-metadata": "^0.1.13"
     },
     "devDependencies": {
