@@ -39,8 +39,6 @@ export class Bungie {
         const DestinyInventoryItemDefinition = englishContent.DestinyInventoryBucketDefinition;
         const DestinyInventoryBucketDefinition = englishContent.DestinyInventoryBucketDefinition;
 
-        console.log(DestinyInventoryBucketDefinition);
-
         this.itemDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryItemDefinition));
         this.bucketDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryBucketDefinition));
     }
