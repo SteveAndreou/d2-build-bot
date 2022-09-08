@@ -32,3 +32,9 @@ RUN npm install --only=production
 
 # Move build files
 COPY --from=build-runner /tmp/app/build /app/build
+
+# expose port 8080
+EXPOSE 8080
+
+# Start bot
+CMD [ "npm", "run", "start" ]
