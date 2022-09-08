@@ -13,7 +13,6 @@ export class DIM {
         const response = await fetch(buildURL.toString());
         const body = await response.text();
 
-        console.log(body);
         const $ = load(body);
 
         const encodedLoadout = $('.dim-button:first').attr('href');
@@ -30,7 +29,6 @@ export class DIM {
         }
 
         const parsedLoadout = JSON.parse(decodeURIComponent(encodedLoadoutString)) as Loadout;
-        console.log(parsedLoadout);
         return parsedLoadout;
     }
 }

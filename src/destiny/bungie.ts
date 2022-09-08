@@ -32,9 +32,13 @@ export class Bungie {
             .then((response) => response as any)
             .then((response) => response.Response.jsonWorldContentPaths.en);
 
+        console.log(englishManifestLocation);
+
         const englishContent = await fetch(`https://bungie.net${englishManifestLocation}`)
             .then((response) => response.json())
             .then((response) => response as any);
+
+        console.log(englishContent);
 
         const DestinyInventoryItemDefinition = englishContent.DestinyInventoryBucketDefinition;
         const DestinyInventoryBucketDefinition = englishContent.DestinyInventoryBucketDefinition;

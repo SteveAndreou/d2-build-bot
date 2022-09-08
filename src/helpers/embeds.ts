@@ -20,11 +20,11 @@ export class BuildDiscordEmbed {
             .setThumbnail(`https://www.bungie.net${build.superAbility?.icon}`);
 
         try {
-            let abilitiesString = `${build.movementAbility?.name} \u000D`;
-            abilitiesString += `${build.melee?.name} \u000D`;
-            abilitiesString += `${build.grenade?.name} \u000D`;
-            abilitiesString += `${build.classAbility?.name} \u000D`;
-            abilitiesString += `${build.superAbility?.name} \u000D`;
+            let abilitiesString = `${build.movementAbility?.name ?? ''} \u000D`;
+            abilitiesString += `${build.melee?.name ?? ''} \u000D`;
+            abilitiesString += `${build.grenade?.name ?? ''} \u000D`;
+            abilitiesString += `${build.classAbility?.name ?? ''} \u000D`;
+            abilitiesString += `${build.superAbility?.name ?? ''} \u000D`;
 
             buildEmbed.addFields({ name: `Abilities`, value: abilitiesString, inline: true });
         } catch (ex) {
