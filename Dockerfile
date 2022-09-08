@@ -32,6 +32,3 @@ RUN npm install --only=production
 
 # Move build files
 COPY --from=build-runner /tmp/app/build /app/build
-
-# Start bot
-CMD [ "npm", "run", "start" ]
