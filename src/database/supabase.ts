@@ -81,7 +81,6 @@ export class Supabase {
             .limit(1)
             .single();
 
-        console.log({ query: 'rand', data, status, error });
         return data;
     }
 
