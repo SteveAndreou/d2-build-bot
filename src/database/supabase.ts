@@ -75,12 +75,14 @@ export class Supabase {
     }
 
     async rand() {
-        const randomItem = await this.database
+        const { data, error, status } = await this.database
             .from<Build>('random_builds')
             .select('id, link, author, rating, description')
             .limit(1)
             .single();
-        return randomItem.data;
+
+        console.log({ query: 'rand', data, status, error });
+        return data;
     }
 
     async search(searchOptions: SearchOptions, page: number = 1) {
@@ -121,6 +123,7 @@ export class Supabase {
 
         const totalPages = count ? Math.ceil(count / pageSize) : 1;
 
+        console.log({ data, count, error });
         return { data, totalPages };
     }
 
