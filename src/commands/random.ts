@@ -37,6 +37,8 @@ export class RandomBuild {
             description: randomBuild.description,
         });
 
+        console.log(build);
+
         interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(randomBuild.id, build)] });
     }
 }
