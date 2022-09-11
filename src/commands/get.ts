@@ -22,7 +22,7 @@ export class GetBuild {
     @Guard(RateLimit(TIME_UNIT.seconds, 30))
     async findBuild(
         @SlashOption({ description: 'ID value for the build', name: 'id' })
-        id: string,
+        id: number,
         interaction: CommandInteraction
     ): Promise<void> {
         const result = await database.get(id);
@@ -61,8 +61,9 @@ export class GetBuild {
     @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
     async upvote_handler(interaction: ButtonInteraction): Promise<void> {
         const id = interaction.customId.split('-')[1];
+        const { tag } = interaction.user;
 
-        const ok = await database.upvote(id);
+        const ok = await database.upvote(Number(id), tag);
         interaction.reply({
             content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
             ephemeral: true,

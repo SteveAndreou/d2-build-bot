@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { DestinyBuild } from '../destiny/build';
-import { Build, SearchOptions } from '../types';
+import { Build, Rating, SearchOptions } from '../types';
 
 export class Supabase {
     database: SupabaseClient;
@@ -43,14 +43,31 @@ export class Supabase {
             ])
             .single();
 
-        if (error) return '??';
+        if (error) return null;
+        if (data === null) return null;
 
-        return data?.id ?? '??';
+        return data.id;
     }
 
-    async upvote(id: string): Promise<boolean> {
-        const { data } = await this.database.from<Build>('builds').select('id, rating').eq('id', id).limit(1).single();
+    async upvote(id: number, user: string): Promise<boolean> {
+        //check to see if already voted
+        const { count } = await this.database
+            .from<Rating>('ratings')
+            .select('build_id')
+            .eq('build_id', id)
+            .neq('user', user);
 
+        if (count === null) return false;
+        if (count > 0) return false;
+
+        // insert a new vote
+        const { data: vote, error: voteError } = await this.database
+            .from<Rating>('rating')
+            .insert({ build_id: id, user: user });
+        if (voteError) return false;
+
+        // update ratings count on build
+        const { data } = await this.database.from<Build>('builds').select('id, rating').eq('id', id).limit(1).single();
         const currentRating = data?.rating ?? 0;
 
         const { status } = await this.database
@@ -61,7 +78,7 @@ export class Supabase {
         return status === 200;
     }
 
-    async get(id: string) {
+    async get(id: number) {
         const { data } = await this.database
             .from<Build>('builds')
             .select(
@@ -126,7 +143,7 @@ export class Supabase {
         return { data, totalPages };
     }
 
-    async delete(id: string, tag: string) {
+    async delete(id: number, tag: string) {
         const build = await this.get(id);
 
         if (build === null) return false;

@@ -40,7 +40,7 @@ export class FindBuild {
 
             data?.forEach((build) => {
                 embed.addFields({
-                    name: `[${build.id}] ${build.name}`,
+                    name: `[${build.id}] ${build.name} (${build.rating} votes)`,
                     value: `${build.description ?? ''} \u000D ${build.link}`,
                     inline: false,
                 });

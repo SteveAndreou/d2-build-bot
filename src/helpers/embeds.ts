@@ -6,7 +6,9 @@ import { CustomEmoji } from './emoji.js';
 export class BuildDiscordEmbed {
     constructor() {}
 
-    static getEmbed(id: string | number, build: DestinyBuild) {
+    static getEmbed(id: number | null, build: DestinyBuild) {
+        if (id === null) return new EmbedBuilder();
+
         const buildEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
             .setTitle(build.name)

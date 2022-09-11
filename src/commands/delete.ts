@@ -12,7 +12,7 @@ export class DeleteBuild {
     @Guard(RateLimit(TIME_UNIT.seconds, 30))
     async deleteBuild(
         @SlashOption({ description: 'Build ID', name: 'id' })
-        id: string,
+        id: number,
         interaction: CommandInteraction
     ): Promise<void> {
         const user = interaction.user;

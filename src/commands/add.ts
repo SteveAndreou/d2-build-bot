@@ -96,8 +96,9 @@ export class AddBuild {
     @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
     async upvote_handler(interaction: ButtonInteraction): Promise<void> {
         const id = interaction.customId.split('-')[1];
+        const user = interaction.user.tag;
 
-        const ok = await database.upvote(id);
+        const ok = await database.upvote(Number(id), user);
         interaction.reply({
             content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
             ephemeral: true,

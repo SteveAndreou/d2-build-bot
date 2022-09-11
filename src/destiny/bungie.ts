@@ -36,11 +36,14 @@ export class Bungie {
             .then((response) => response.json())
             .then((response) => response as any);
 
-        const DestinyInventoryItemDefinition = englishContent.DestinyInventoryBucketDefinition;
+        const DestinyInventoryItemDefinition = englishContent.DestinyInventoryItemDefinition;
         const DestinyInventoryBucketDefinition = englishContent.DestinyInventoryBucketDefinition;
 
         this.itemDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryItemDefinition));
         this.bucketDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryBucketDefinition));
+
+        console.log('manifest added');
+        console.log(`${this.itemDefinitions.size}`);
     }
 }
 

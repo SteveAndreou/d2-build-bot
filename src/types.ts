@@ -1,5 +1,5 @@
 export type Build = {
-    id: string;
+    id: number;
     author: string;
     rating: number;
     name: string;
@@ -15,6 +15,13 @@ export type Build = {
     super: string | null;
     exotic_weapon: string | null;
     exotic_armour: string | null;
+};
+
+export type Rating = {
+    id: number;
+    created_at: string;
+    build_id: number;
+    user: string;
 };
 
 export type BuildMetadata = {
