@@ -11,7 +11,7 @@ export class MyBuild {
         name: 'mine',
         description: 'Find my builds',
     })
-    @Guard(RateLimit(TIME_UNIT.seconds, 30))
+    @Guard(RateLimit(TIME_UNIT.seconds, 15))
     async myBuilds(interaction: CommandInteraction): Promise<void> {
         const author = interaction.user.tag;
 

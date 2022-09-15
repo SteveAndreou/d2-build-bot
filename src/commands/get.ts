@@ -19,7 +19,7 @@ export class GetBuild {
         name: 'get',
         description: 'Get a build by ID',
     })
-    @Guard(RateLimit(TIME_UNIT.seconds, 30))
+    @Guard(RateLimit(TIME_UNIT.seconds, 15))
     async findBuild(
         @SlashOption({ description: 'ID value for the build', name: 'id' })
         id: number,
@@ -48,14 +48,17 @@ export class GetBuild {
             description: result.description,
         });
 
-        const btn = new ButtonBuilder()
-            .setEmoji('👍')
-            .setLabel('Up vote')
-            .setStyle(ButtonStyle.Success)
-            .setCustomId(`upvote-${result.id}`);
+        await build.process();
 
-        const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)], components: [buttonRow] });
+        // const btn = new ButtonBuilder()
+        //     .setEmoji('👍')
+        //     .setLabel('Up vote')
+        //     .setStyle(ButtonStyle.Success)
+        //     .setCustomId(`upvote-${result.id}`);
+
+        // const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
+        // interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)], components: [buttonRow] });
+        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)] });
     }
 
     @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })

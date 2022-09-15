@@ -1,5 +1,14 @@
-import { BuildMetadata } from './../types';
-import { Loadout, EquipmentItem, ModItem, ClassSocketItem, ClassTypes, Dictionary, DamageTypes } from '../types.js';
+import { ItemDefinition } from './bungie';
+import {
+    Loadout,
+    EquipmentItem,
+    ModItem,
+    ClassSocketItem,
+    ClassTypes,
+    Dictionary,
+    DamageTypes,
+    BuildMetadata,
+} from '../types.js';
 import { bungie } from '../main.js';
 import groupBy from 'lodash.groupby';
 export class DestinyBuild {
@@ -78,65 +87,72 @@ export class DestinyBuild {
         this.exotic_weapon = null;
 
         this.mods = {};
-
-        this.processLoadout();
     }
 
-    private processLoadout() {
+    public async process() {
         const { equipped, parameters } = this._loadout;
         const { mods } = parameters;
 
         const classSocketItems: Array<ClassSocketItem> = [];
 
         const guardianClass = equipped.find((x) => x.socketOverrides !== undefined);
-        const subclass = bungie.itemDefinitions.get(`${guardianClass?.hash}`);
+        const subclass = guardianClass?.hash ? await bungie.getItem(guardianClass.hash) : null;
 
         this.subClass = `${subclass?.displayProperties.name}`;
         this.damageType = DamageTypes[subclass?.talentGrid.hudDamageType ?? 0];
         this.subClassIcon = `${subclass?.displayProperties.icon}`;
 
         const sockets = guardianClass?.socketOverrides;
-        for (const key in sockets) {
-            const item = bungie.itemDefinitions.get(`${sockets[key]}`);
-            if (item) {
-                classSocketItems.push({
-                    name: item?.displayProperties.name,
-                    icon: item?.displayProperties.icon,
-                    type: item?.itemTypeDisplayName,
-                });
+        if (sockets) {
+            const hashes = Object.values(sockets);
+            const classItems = await bungie.getItems(hashes);
+
+            if (classItems) {
+                classSocketItems.push(
+                    ...classItems.map((item) => ({
+                        name: item.displayProperties.name,
+                        icon: item.displayProperties.icon,
+                        type: item.itemTypeDisplayName,
+                    }))
+                );
             }
         }
 
-        let items = equipped
-            .filter((x) => x.socketOverrides === undefined)
-            .map((x) => bungie.itemDefinitions.get(`${x.hash}`))
-            .map(
-                (x) =>
-                    ({
-                        name: x?.displayProperties.name,
-                        icon: x?.displayProperties.icon,
-                        type: x?.itemTypeDisplayName,
-                        rarity: x?.inventory.tierTypeName,
-                        slot: `${
-                            bungie.bucketDefinitions.get(`${x?.inventory.bucketTypeHash}`)?.displayProperties?.name ??
-                            ''
-                        }`,
-                    } as EquipmentItem)
-            );
+        const equippedHashes = equipped.filter((x) => x.socketOverrides === undefined).map((x) => x.hash);
+        const equippedItems = await bungie.getItems(equippedHashes);
+        const equippedSlotHashes = equippedItems ? equippedItems?.map((x) => x.inventory.bucketTypeHash) : [];
+        const slots = await bungie.getBuckets(equippedSlotHashes);
 
-        this.mods = groupBy(
-            mods
-                .map((x) => bungie.itemDefinitions.get(`${x}`))
-                .map(
-                    (x) =>
-                        ({
-                            name: x?.displayProperties.name,
-                            icon: x?.displayProperties.icon,
-                            type: x?.itemTypeDisplayName,
-                        } as ModItem)
-                ),
-            (x) => x.type
-        );
+        const items = equippedItems
+            ? equippedItems?.map(
+                  (x) =>
+                      ({
+                          name: x?.displayProperties.name,
+                          icon: x?.displayProperties.icon,
+                          type: x?.itemTypeDisplayName,
+                          rarity: x?.inventory.tierTypeName,
+                          slot:
+                              slots?.find((slot) => slot.hash === x.inventory.bucketTypeHash)?.displayProperties.name ??
+                              '',
+                      } as EquipmentItem)
+              )
+            : [];
+
+        const modItems = await bungie.getItems(mods);
+
+        this.mods = modItems
+            ? groupBy(
+                  modItems.map(
+                      (x) =>
+                          ({
+                              name: x?.displayProperties.name,
+                              icon: x?.displayProperties.icon,
+                              type: x?.itemTypeDisplayName,
+                          } as ModItem)
+                  ),
+                  (x) => x.type
+              )
+            : {};
 
         this.melee = classSocketItems.find((x) => x.type.includes('Melee')) ?? null;
         this.grenade = classSocketItems.find((x) => x.type.includes('Grenade')) ?? null;

@@ -5,12 +5,8 @@ import {
     TextInputBuilder,
     TextInputStyle,
     ModalSubmitInteraction,
-    ButtonInteraction,
-    MessageActionRowComponentBuilder,
-    ButtonStyle,
-    ButtonBuilder,
 } from 'discord.js';
-import { Discord, ModalComponent, ButtonComponent, Slash, Guard } from 'discordx';
+import { Discord, ModalComponent, Slash, Guard } from 'discordx';
 import { DestinyBuild } from '../destiny/build.js';
 import { DIM } from '../destiny/dim.js';
 import { BuildDiscordEmbed } from '../helpers/embeds.js';
@@ -23,7 +19,7 @@ export class AddBuild {
         name: 'add',
         description: 'Add a build to the build bot',
     })
-    @Guard(RateLimit(TIME_UNIT.seconds, 30))
+    @Guard(RateLimit(TIME_UNIT.seconds, 15))
     addBuild(interaction: CommandInteraction): void {
         //as more about the build
         const modal = new ModalBuilder().setTitle(`Add new Build`).setCustomId('BuildCreate');
@@ -76,6 +72,8 @@ export class AddBuild {
             description: description,
         });
 
+        await build.process();
+
         //Post to database
         let id = await database.exists(link);
 
@@ -83,25 +81,26 @@ export class AddBuild {
             id = await database.create(build);
         }
 
-        const btn = new ButtonBuilder()
-            .setEmoji('👍')
-            .setLabel('Up vote')
-            .setStyle(ButtonStyle.Success)
-            .setCustomId(`upvote-${id}`);
+        // const btn = new ButtonBuilder()
+        //     .setEmoji('👍')
+        //     .setLabel('Up vote')
+        //     .setStyle(ButtonStyle.Success)
+        //     .setCustomId(`upvote-${id}`);
 
-        const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)], components: [buttonRow] });
+        // const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
+        // interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)], components: [buttonRow] });
+        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)] });
     }
 
-    @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
-    async upvote_handler(interaction: ButtonInteraction): Promise<void> {
-        const id = interaction.customId.split('-')[1];
-        const user = interaction.user.tag;
+    // @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
+    // async upvote_handler(interaction: ButtonInteraction): Promise<void> {
+    //     const id = interaction.customId.split('-')[1];
+    //     const user = interaction.user.tag;
 
-        const ok = await database.upvote(Number(id), user);
-        interaction.reply({
-            content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
-            ephemeral: true,
-        });
-    }
+    //     const ok = await database.upvote(Number(id), user);
+    //     interaction.reply({
+    //         content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
+    //         ephemeral: true,
+    //     });
+    // }
 }

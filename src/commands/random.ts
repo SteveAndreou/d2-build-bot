@@ -12,7 +12,7 @@ export class RandomBuild {
         name: 'random',
         description: 'Random a build to play',
     })
-    @Guard(RateLimit(TIME_UNIT.seconds, 30))
+    @Guard(RateLimit(TIME_UNIT.seconds, 15))
     async randomBuild(interaction: CommandInteraction): Promise<void> {
         const randomBuild = await database.rand();
 
@@ -36,6 +36,8 @@ export class RandomBuild {
             rating: randomBuild.rating,
             description: randomBuild.description,
         });
+
+        await build.process();
 
         interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(randomBuild.id, build)] });
     }

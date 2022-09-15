@@ -1,5 +1,6 @@
-import { DamageTypes } from '../types';
+import { Bucket, DamageTypes, Item } from '../types.js';
 import fetch from 'node-fetch';
+import { database } from '../main.js';
 
 export type ItemDefinition = {
     displayProperties: { name: string; description: string; icon: string };
@@ -15,35 +16,60 @@ export type ItemDefinition = {
     };
 };
 
-export type InventoryBucketDefinitions = {
+export type InventoryBucketDefinition = {
     displayProperties: { name: string; description: string; icon: string };
     hash: number;
 };
 
 export class Bungie {
-    itemDefinitions = new Map<string, ItemDefinition>();
-    bucketDefinitions = new Map<string, InventoryBucketDefinitions>();
-
     constructor() {}
 
-    async getManifest() {
-        const englishManifestLocation = await fetch('https://bungie.net/Platform/Destiny2/Manifest')
-            .then((response) => response.json())
-            .then((response) => response as any)
-            .then((response) => response.Response.jsonWorldContentPaths.en);
+    public async getItem(hash: number): Promise<ItemDefinition | null> {
+        const item = await database.item(hash);
 
-        const englishContent = await fetch(`https://bungie.net${englishManifestLocation}`)
-            .then((response) => response.json())
-            .then((response) => response as any);
+        if (!item) return null;
 
-        const DestinyInventoryItemDefinition = englishContent.DestinyInventoryItemDefinition;
-        const DestinyInventoryBucketDefinition = englishContent.DestinyInventoryBucketDefinition;
+        try {
+            return JSON.parse(item.source) as ItemDefinition;
+        } catch (ex) {
+            return null;
+        }
+    }
 
-        this.itemDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryItemDefinition));
-        this.bucketDefinitions = new Map<string, ItemDefinition>(Object.entries(DestinyInventoryBucketDefinition));
+    public async getItems(hashes: Array<number>): Promise<Array<ItemDefinition> | null> {
+        const items = await database.items(hashes);
 
-        console.log('manifest added');
-        console.log(`${this.itemDefinitions.size}`);
+        if (!items) return null;
+
+        try {
+            return items.map((item) => JSON.parse(item.source) as ItemDefinition);
+        } catch (ex) {
+            return null;
+        }
+    }
+
+    public async getBucket(hash: number): Promise<InventoryBucketDefinition | null> {
+        const bucket = await database.bucket(hash);
+
+        if (!bucket) return null;
+
+        try {
+            return JSON.parse(bucket.source) as InventoryBucketDefinition;
+        } catch (ex) {
+            return null;
+        }
+    }
+
+    public async getBuckets(hashes: Array<number>): Promise<Array<InventoryBucketDefinition> | null> {
+        const buckets = await database.buckets(hashes);
+
+        if (!buckets) return null;
+
+        try {
+            return buckets.map((item) => JSON.parse(item.source) as InventoryBucketDefinition);
+        } catch (ex) {
+            return null;
+        }
     }
 }
 

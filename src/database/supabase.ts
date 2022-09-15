@@ -1,12 +1,52 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { DestinyBuild } from '../destiny/build';
-import { Build, Rating, SearchOptions } from '../types';
+import { Bucket, Build, Rating, SearchOptions, Item } from '../types';
 
 export class Supabase {
     database: SupabaseClient;
 
     constructor() {
         this.database = createClient(`${process.env.SUPABASE_URL}`, `${process.env.SUPABASE_KEY}`);
+    }
+
+    async bucket(hash: number): Promise<Bucket | null> {
+        const { data, error } = await this.database
+            .from<Bucket>('buckets')
+            .select('id, hash, created_at, source, name')
+            .eq('hash', hash)
+            .limit(1)
+            .single();
+
+        return data;
+    }
+
+    async buckets(hash: Array<number>): Promise<Array<Bucket> | null> {
+        const { data, error } = await this.database
+            .from<Bucket>('buckets')
+            .select('id, hash, created_at, source, name')
+            .in('hash', hash);
+
+        return data;
+    }
+
+    async item(hash: number): Promise<Item | null> {
+        const { data, error } = await this.database
+            .from<Bucket>('items')
+            .select('id, hash, created_at, source, name')
+            .eq('hash', hash)
+            .limit(1)
+            .single();
+
+        return data;
+    }
+
+    async items(hash: Array<number>): Promise<Array<Item> | null> {
+        const { data, error } = await this.database
+            .from<Bucket>('items')
+            .select('id, hash, created_at, source, name')
+            .in('hash', hash);
+
+        return data;
     }
 
     async exists(link: string): Promise<Build['id'] | null> {
@@ -51,19 +91,24 @@ export class Supabase {
 
     async upvote(id: number, user: string): Promise<boolean> {
         //check to see if already voted
-        const { count } = await this.database
+        console.log(`upvote ${id} for ${user}`);
+        const { error, count } = await this.database
             .from<Rating>('ratings')
-            .select('build_id')
+            .select('build_id', { count: 'exact' })
             .eq('build_id', id)
-            .neq('user', user);
+            .eq('user', user);
 
         if (count === null) return false;
         if (count > 0) return false;
 
         // insert a new vote
+        console.log('new entry', { build_id: id, user: user });
+
         const { data: vote, error: voteError } = await this.database
-            .from<Rating>('rating')
-            .insert({ build_id: id, user: user });
+            .from<Rating>('ratings')
+            .insert([{ build_id: id, user: user }])
+            .single();
+
         if (voteError) return false;
 
         // update ratings count on build

@@ -4,23 +4,24 @@ import { Discord, Slash, SlashOption, Guard } from 'discordx';
 import { RateLimit, TIME_UNIT } from '@discordx/utilities';
 
 @Discord()
-export class DeleteBuild {
+export class VoteBuild {
     @Slash({
-        name: 'delete',
-        description: 'Removes a build to the build bot',
+        name: 'upvote',
+        description: 'Add an upvote for a build',
     })
     @Guard(RateLimit(TIME_UNIT.seconds, 15))
-    async deleteBuild(
+    async voteBuild(
         @SlashOption({ description: 'Build ID', name: 'id' })
         id: number,
         interaction: CommandInteraction
     ): Promise<void> {
         const user = interaction.user;
 
-        const ok = await database.delete(id, user.tag);
+        const ok = await database.upvote(id, user.tag);
 
-        if (ok) {
-            interaction.reply('Build removed.');
-        }
+        interaction.reply({
+            content: ok ? 'Your upvote has been logged!' : 'Something went wrong...',
+            ephemeral: true,
+        });
     }
 }

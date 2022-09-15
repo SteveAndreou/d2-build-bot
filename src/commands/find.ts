@@ -11,7 +11,7 @@ export class FindBuild {
         name: 'find',
         description: 'Find a build to play',
     })
-    @Guard(RateLimit(TIME_UNIT.seconds, 30))
+    @Guard(RateLimit(TIME_UNIT.seconds, 15))
     async findBuild(
         @SlashChoice(
             { name: 'Titan', value: 'titan' },

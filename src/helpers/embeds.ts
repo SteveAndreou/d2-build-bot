@@ -17,7 +17,7 @@ export class BuildDiscordEmbed {
             .setDescription(
                 `[${id}] ${build.guardianClass} - ${CustomEmoji[`${build.damageType as keyof typeof CustomEmoji}`]} ${
                     build.subClass
-                } \u000D ${build.description} \u000D`
+                } \u000D ${build.description} \u000D ${build.rating} community votes`
             )
             .setThumbnail(`https://www.bungie.net${build.superAbility?.icon}`);
 

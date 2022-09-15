@@ -17,6 +17,22 @@ export type Build = {
     exotic_armour: string | null;
 };
 
+export type Bucket = {
+    id: number;
+    hash: number;
+    created_at: string;
+    name: string;
+    source: string;
+};
+
+export type Item = {
+    id: number;
+    hash: number;
+    created_at: string;
+    name: string;
+    source: string;
+};
+
 export type Rating = {
     id: number;
     created_at: string;

@@ -74,9 +74,6 @@ async function run() {
 
     // Log in with your bot token
     await bot.login(process.env.BOT_TOKEN);
-
-    // Get the data required to read builds
-    await bungie.getManifest();
 }
 
 run();
