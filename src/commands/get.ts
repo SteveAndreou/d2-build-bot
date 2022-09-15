@@ -25,6 +25,8 @@ export class GetBuild {
         id: number,
         interaction: CommandInteraction
     ): Promise<void> {
+        await interaction.deferReply();
+
         const result = await database.get(id);
 
         if (!result) {
@@ -58,7 +60,7 @@ export class GetBuild {
 
         // const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
         // interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)], components: [buttonRow] });
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)] });
+        await interaction.editReply({ embeds: [BuildDiscordEmbed.getEmbed(result.id, build)] });
     }
 
     @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })

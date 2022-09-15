@@ -14,6 +14,7 @@ export class MyBuild {
     @Guard(RateLimit(TIME_UNIT.seconds, 15))
     async myBuilds(interaction: CommandInteraction): Promise<void> {
         const author = interaction.user.tag;
+        await interaction.deferReply();
 
         const getPage = new PaginationResolver(async (page, pagination) => {
             const currentPage = page + 1; //zero index page

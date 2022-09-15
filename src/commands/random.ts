@@ -14,6 +14,8 @@ export class RandomBuild {
     })
     @Guard(RateLimit(TIME_UNIT.seconds, 15))
     async randomBuild(interaction: CommandInteraction): Promise<void> {
+        await interaction.deferReply();
+
         const randomBuild = await database.rand();
 
         if (!randomBuild) {
@@ -39,6 +41,6 @@ export class RandomBuild {
 
         await build.process();
 
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(randomBuild.id, build)] });
+        await interaction.editReply({ embeds: [BuildDiscordEmbed.getEmbed(randomBuild.id, build)] });
     }
 }

@@ -32,6 +32,8 @@ export class FindBuild {
 
         interaction: CommandInteraction
     ): Promise<void> {
+        await interaction.deferReply();
+
         const getPage = new PaginationResolver(async (page, pagination) => {
             const currentPage = page + 1; //zero index page
             const { data, totalPages } = await database.search({ guardian, subclass }, currentPage);
