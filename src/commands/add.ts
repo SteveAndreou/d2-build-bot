@@ -51,6 +51,8 @@ export class AddBuild {
         const link = interaction.fields.getTextInputValue('link');
         const description = interaction.fields.getTextInputValue('description');
 
+        await interaction.deferReply();
+
         if (!link || link.length === 0) {
             await interaction.reply('Did you put a link?');
             return;
@@ -89,7 +91,7 @@ export class AddBuild {
 
         // const buttonRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(btn);
         // interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)], components: [buttonRow] });
-        interaction.reply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)] });
+        await interaction.editReply({ embeds: [BuildDiscordEmbed.getEmbed(id, build)] });
     }
 
     // @ButtonComponent({ id: new RegExp(/upvote-[0-9]+/) })
